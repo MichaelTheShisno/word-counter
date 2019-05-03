@@ -1,9 +1,15 @@
-package counter
+package main
 
 import (
-	"fmt"
+    "fmt"
+    "os"
 )
 
 func main() {
-    fmt.Print("Hello, Word Counter!")
+    fmt.Println("Hello, Word Counter!")
+    
+    args := os.Args[1:]
+    for _, arg := range args {
+        fmt.Println(arg)
+    }
 }
