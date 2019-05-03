@@ -5,6 +5,7 @@ import (
     "os"
     "io/ioutil"
     "log"
+    "strings"
 )
 
 	
@@ -32,7 +33,10 @@ func main() {
     }
     // Loop through files and check if they exist
     for _, filePath := range files {
-        _, err := ioutil.ReadFile(filePath)
+        data, err := ioutil.ReadFile(filePath)
         check(err)
+        words := strings.Split(string(data), " ")
+        numWords := len(words)
+        fmt.Printf("File contains %d words.\n", numWords)
     }
 }
