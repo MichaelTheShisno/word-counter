@@ -6,10 +6,13 @@ import (
 )
 
 func main() {
-    fmt.Println("Hello, Word Counter!")
-    
     args := os.Args[1:]
-    for _, arg := range args {
-        fmt.Println(arg)
+    if len(args) == 0 {
+        fmt.Println("No command line args...\nExiting program")
+        os.Exit(-1)
+    } else {
+        for _, arg := range args {
+            fmt.Println(arg)
+        }
     }
 }
