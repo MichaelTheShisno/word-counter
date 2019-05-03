@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "os"
+    "log"
 )
 
 func main() {
@@ -10,9 +11,18 @@ func main() {
     if len(args) == 0 {
         fmt.Println("No command line args...\nExiting program")
         os.Exit(-1)
-    } else {
-        for _, arg := range args {
-            fmt.Println(arg)
-        }
+    } 
+
+    dir, err := os.Getwd()
+    if err != nil {
+        log.Fatal(err)
     }
+
+    var files []string
+    for _, arg := range args {
+        fpath := dir + "\\" + arg
+        files = append(files, fpath)
+    }
+
+    fmt.Println(files)
 }
