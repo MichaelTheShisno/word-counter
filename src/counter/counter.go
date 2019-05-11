@@ -1,12 +1,12 @@
 package main
 
 import (
-    "crypto/sha1"
     "fmt"
     "io/ioutil"
     "log"
     "os"
     "regexp"
+    "strings"
 )
 
 
@@ -20,14 +20,19 @@ func check(e error) {
     Store and return words read from the specified text file.
 */
 func getWords(filePath string) []string {
+    // Read in data from the specified file path.
     data, err := ioutil.ReadFile(filePath)
     check(err)
+    // Use regular expression as word delimiters.
     spaces := regexp.MustCompile(`\s| `)
     trim := regexp.MustCompile("[^a-zA-Z0-9_]+")
+    // 
     rawWords := spaces.Split(string(data), -1)
     var cleanWords []string
     for _, word := range rawWords {
-        if cleanWord := trim.ReplaceAllString(word, ""); cleanWord != "" {
+        cleanWord := trim.ReplaceAllString(word, "")
+        cleanWord = strings.ToLower(cleanWord)
+        if cleanWord != "" {
             cleanWords = append(cleanWords, cleanWord)
         }
     }
@@ -38,19 +43,15 @@ func getWords(filePath string) []string {
     Return a mapping of unique words as strings to the number of times each appears in the text file.
 */
 func getWordCountMap(words []string) map[string]int {
-    hashTable := make(map[string]int)
+    wordMap := make(map[string]int)
     for _, word := range words {
-        h := sha1.New()
-        h.Write([]byte(word))
-        hash := string(h.Sum(nil))
-        // If the hash is not already in the hash table...
-        if _, ok := hashTable[hash]; !ok {
-            hashTable[hash] = 1
+        if _, ok := wordMap[word]; !ok {
+            wordMap[word] = 1
         } else {
-            hashTable[hash]++
+            wordMap[word]++
         }
     }
-    return hashTable
+    return wordMap
 }
 
 /*
@@ -60,6 +61,11 @@ func printWordStats(words []string) {
     wordMap := getWordCountMap(words)
     fmt.Printf("File contains %d words.\n", len(words))
     fmt.Printf("File contains %d unique words.\n", len(wordMap))
+    // Print words from most to least frequently used.
+    //rank := 0
+    for key, val := range wordMap {
+        fmt.Printf("%-12s\t%d\n", key, val)
+    }
 }
 
 /*
