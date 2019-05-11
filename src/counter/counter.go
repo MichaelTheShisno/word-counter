@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "os"
+    "crypto/sha1"
     "io/ioutil"
     "log"
     "strings"
@@ -13,6 +14,29 @@ func check(e error) {
     if e != nil {
         log.Fatal(e)
     }
+}
+
+func getWordCountMap(words []string) map[string]int {
+    hashTable := make(map[string]int)
+    for _, word := range words {
+        h := sha1.New()
+        h.Write([]byte(word))
+        hash := string(h.Sum(nil))
+        // If the hash is not already in the hash table...
+        if _, ok := hashTable[hash]; !ok {
+            hashTable[hash] = 0
+        } else {
+            hashTable[hash]++
+        }
+    }
+    return hashTable
+}
+
+func printWordStats(words []string) {
+    numWords := len(words)
+    //wordMap := getWordCountMap(words)
+
+    fmt.Printf("File contains %d words.\n", numWords)
 }
 
 func main() {
@@ -31,12 +55,11 @@ func main() {
         fpath := dir + "\\" + arg
         files = append(files, fpath)
     }
-    // Loop through files and check if they exist
+    // For every file, print its word information
     for _, filePath := range files {
         data, err := ioutil.ReadFile(filePath)
         check(err)
         words := strings.Split(string(data), " ")
-        numWords := len(words)
-        fmt.Printf("File contains %d words.\n", numWords)
+        printWordStats(words)
     }
 }
