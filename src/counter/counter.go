@@ -17,15 +17,16 @@ func check(e error) {
     }
 }
 
+
 func getWords(filePath string) []string {
     data, err := ioutil.ReadFile(filePath)
     check(err)
     rawWords := strings.Split(string(data), " ")
     var cleanWords []string
+    reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
+    check(err)
     for _, word := range rawWords {
-        cleanWord := strings.TrimSpace(word)
-        fmt.Println(cleanWord)
-        if hasNonWordCharacter, _ := regexp.MatchString(cleanWord, "[^a-zA-Z0-9_]+"); !hasNonWordCharacter {
+        if cleanWord := reg.ReplaceAllString(word, ""); cleanWord != "" {
             cleanWords = append(cleanWords, cleanWord)
         }
     }
@@ -41,7 +42,6 @@ func getWordCountMap(words []string) map[string]int {
         hash := string(h.Sum(nil))
         // If the hash is not already in the hash table...
         if _, ok := hashTable[hash]; !ok {
-            fmt.Println()
             hashTable[hash] = 0
         } else {
             hashTable[hash]++
@@ -50,13 +50,13 @@ func getWordCountMap(words []string) map[string]int {
     return hashTable
 }
 
+
 func printWordStats(words []string) {
     wordMap := getWordCountMap(words)
-    numWords := len(words)
-    numUniqueWords := len(wordMap)
-    fmt.Printf("File contains %d words.\n", numWords)
-    fmt.Printf("File contains %d unique words.\n", numUniqueWords)
+    fmt.Printf("File contains %d words.\n", len(words))
+    fmt.Printf("File contains %d unique words.\n", len(wordMap))
 }
+
 
 func main() {
     // Read in args, check if there are no args
