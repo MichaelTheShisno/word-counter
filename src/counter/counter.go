@@ -1,12 +1,13 @@
 package main
 
 import (
-    "fmt"
-    "os"
     "crypto/sha1"
+    "fmt"
     "io/ioutil"
     "log"
+    "os"
     "strings"
+    "regexp"
 )
 
 	
@@ -16,6 +17,22 @@ func check(e error) {
     }
 }
 
+func getWords(filePath string) []string {
+    data, err := ioutil.ReadFile(filePath)
+    check(err)
+    rawWords := strings.Split(string(data), " ")
+    var cleanWords []string
+    for _, word := range rawWords {
+        cleanWord := strings.TrimSpace(word)
+        fmt.Println(cleanWord)
+        if hasNonWordCharacter, _ := regexp.MatchString(cleanWord, "[^a-zA-Z0-9_]+"); !hasNonWordCharacter {
+            cleanWords = append(cleanWords, cleanWord)
+        }
+    }
+    return cleanWords
+}
+
+
 func getWordCountMap(words []string) map[string]int {
     hashTable := make(map[string]int)
     for _, word := range words {
@@ -24,6 +41,7 @@ func getWordCountMap(words []string) map[string]int {
         hash := string(h.Sum(nil))
         // If the hash is not already in the hash table...
         if _, ok := hashTable[hash]; !ok {
+            fmt.Println()
             hashTable[hash] = 0
         } else {
             hashTable[hash]++
@@ -33,10 +51,11 @@ func getWordCountMap(words []string) map[string]int {
 }
 
 func printWordStats(words []string) {
+    wordMap := getWordCountMap(words)
     numWords := len(words)
-    //wordMap := getWordCountMap(words)
-
+    numUniqueWords := len(wordMap)
     fmt.Printf("File contains %d words.\n", numWords)
+    fmt.Printf("File contains %d unique words.\n", numUniqueWords)
 }
 
 func main() {
@@ -57,9 +76,6 @@ func main() {
     }
     // For every file, print its word information
     for _, filePath := range files {
-        data, err := ioutil.ReadFile(filePath)
-        check(err)
-        words := strings.Split(string(data), " ")
-        printWordStats(words)
+        printWordStats(getWords(filePath))
     }
 }
