@@ -6,34 +6,37 @@ import (
     "io/ioutil"
     "log"
     "os"
-    "strings"
     "regexp"
 )
 
-	
+
 func check(e error) {
     if e != nil {
         log.Fatal(e)
     }
 }
 
-
+/*
+    Store and return words read from the specified text file.
+*/
 func getWords(filePath string) []string {
     data, err := ioutil.ReadFile(filePath)
     check(err)
-    rawWords := strings.Split(string(data), " ")
+    spaces := regexp.MustCompile(`\s| `)
+    trim := regexp.MustCompile("[^a-zA-Z0-9_]+")
+    rawWords := spaces.Split(string(data), -1)
     var cleanWords []string
-    reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
-    check(err)
     for _, word := range rawWords {
-        if cleanWord := reg.ReplaceAllString(word, ""); cleanWord != "" {
+        if cleanWord := trim.ReplaceAllString(word, ""); cleanWord != "" {
             cleanWords = append(cleanWords, cleanWord)
         }
     }
     return cleanWords
 }
 
-
+/*
+    Return a mapping of unique words as strings to the number of times each appears in the text file.
+*/
 func getWordCountMap(words []string) map[string]int {
     hashTable := make(map[string]int)
     for _, word := range words {
@@ -42,7 +45,7 @@ func getWordCountMap(words []string) map[string]int {
         hash := string(h.Sum(nil))
         // If the hash is not already in the hash table...
         if _, ok := hashTable[hash]; !ok {
-            hashTable[hash] = 0
+            hashTable[hash] = 1
         } else {
             hashTable[hash]++
         }
@@ -50,14 +53,19 @@ func getWordCountMap(words []string) map[string]int {
     return hashTable
 }
 
-
+/*
+    Print data pertinent to the text file.
+*/
 func printWordStats(words []string) {
     wordMap := getWordCountMap(words)
     fmt.Printf("File contains %d words.\n", len(words))
     fmt.Printf("File contains %d unique words.\n", len(wordMap))
 }
 
-
+/*
+    Main function. Read in command line arguements.
+    For each file, print out info about that text file.
+*/
 func main() {
     // Read in args, check if there are no args
     args := os.Args[1:]
