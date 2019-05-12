@@ -7,6 +7,7 @@ import (
     "os"
     "regexp"
     "strings"
+    "sort"
 )
 
 
@@ -46,12 +47,25 @@ func getWordCountMap(words []string) map[string]int {
     wordMap := make(map[string]int)
     for _, word := range words {
         if _, ok := wordMap[word]; !ok {
-            wordMap[word] = 1
-        } else {
-            wordMap[word]++
+            wordMap[word] = 0
         }
+        wordMap[word]++
     }
     return wordMap
+}
+
+/*
+    Return mapping of frequencies to array of strings with the corresponding frequency.
+*/
+func getFrequencyMap(wMap map[string]int) map[int][]string {
+    fMap := make(map[int][]string)
+    for word, frequency := range wMap {
+        if _, inMap := fMap[frequency]; !inMap {
+            fMap[frequency] = []string{}
+        }
+        fMap[frequency] = append(fMap[frequency], word)
+    }
+    return fMap
 }
 
 /*
@@ -59,12 +73,20 @@ func getWordCountMap(words []string) map[string]int {
 */
 func printWordStats(words []string) {
     wordMap := getWordCountMap(words)
+    freqMap := getFrequencyMap(wordMap)
     fmt.Printf("File contains %d words.\n", len(words))
     fmt.Printf("File contains %d unique words.\n", len(wordMap))
-    // Print words from most to least frequently used.
-    //rank := 0
-    for key, val := range wordMap {
-        fmt.Printf("%-12s\t%d\n", key, val)
+    // Print words from most to least frequently used.      
+    var rankSlice []int
+    for frequency := range freqMap {
+        rankSlice = append(rankSlice, frequency)
+    }
+    sort.Slice(rankSlice, func(i, j int) bool {
+        return rankSlice[i] < rankSlice[j]
+    })
+    for rank, frequency := range rankSlice {
+        fmt.Printf("Rank: %3d\tFrequency: %3d ---> ", rank+1, frequency)
+        fmt.Println(freqMap[frequency])
     }
 }
 
