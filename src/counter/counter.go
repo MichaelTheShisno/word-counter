@@ -82,10 +82,12 @@ func printWordStats(words []string) {
         rankSlice = append(rankSlice, frequency)
     }
     sort.Slice(rankSlice, func(i, j int) bool {
-        return rankSlice[i] < rankSlice[j]
+        return rankSlice[i] > rankSlice[j]
     })
+    size := len(rankSlice)
+    rankSlice = rankSlice[:size-1]
     for rank, frequency := range rankSlice {
-        fmt.Printf("Rank: %3d\tFrequency: %3d ---> ", rank+1, frequency)
+        fmt.Printf("Rank: %3d\tFrequency: %3d---> ", rank+1, frequency)
         fmt.Println(freqMap[frequency])
     }
 }
