@@ -71,11 +71,9 @@ func getFrequencyMap(wordMap map[string]int) map[int][]string {
 /*
     Print data pertinent to the text file.
 */
-func printWordStats(words []string) {
+func printWordStats(fileName string, words []string) {
     wordMap := getWordCountMap(words)
     freqMap := getFrequencyMap(wordMap)
-    fmt.Printf("File contains %d words.\n", len(words))
-    fmt.Printf("File contains %d unique words.\n", len(wordMap))
     var rankSlice []int
     for frequency := range freqMap {
         rankSlice = append(rankSlice, frequency)
@@ -84,6 +82,10 @@ func printWordStats(words []string) {
     sort.Slice(rankSlice, func(i, j int) bool {
         return rankSlice[i] > rankSlice[j]
     })
+
+    fmt.Printf("\n\n%s\n", fileName)
+    fmt.Printf("File contains %d words.\n", len(words))
+    fmt.Printf("File contains %d unique words.\n", len(wordMap))
     // Print words from most to least frequently used.      
     size := len(rankSlice)
     rankSlice = rankSlice[:size-1]
@@ -104,7 +106,7 @@ func printDirectory() {
     for _, file := range files {
         mode := file.Mode()
         if mode.IsRegular() {
-            printWordStats(getWords(fmt.Sprintf("%s\\%s", dir, file.Name())))
+            printWordStats(file.Name(), getWords(fmt.Sprintf("%s\\%s", dir, file.Name())))
         }
     }
 }
@@ -119,7 +121,7 @@ func printFiles(args []string) {
     for _, arg := range args {
         fileInfo, _ := os.Stat(arg)
         if fileInfo.Mode().IsRegular() {
-            printWordStats(getWords(fmt.Sprintf("%s\\%s", dir, arg)))
+            printWordStats(arg, getWords(fmt.Sprintf("%s\\%s", dir, arg)))
         }
     }
 }
