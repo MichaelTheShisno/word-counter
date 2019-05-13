@@ -21,14 +21,14 @@ func check(e error) {
     Store and return words read from the specified text file.
 */
 func getWords(filePath string) []string {
-    // Read in data from the specified file path.
     data, err := ioutil.ReadFile(filePath)
     check(err)
-    // Use regular expression as word delimiters.
+    // Use regular expression as word delimiters and whitespace trimmers.
     spaces := regexp.MustCompile(`\s| `)
     trim := regexp.MustCompile("[^a-zA-Z0-9_]+")
-    // 
+    // Store data from file in array, delimit on whitespace.
     rawWords := spaces.Split(string(data), -1)
+    // Store each word in array after it has been stripped of whitespace and made lowercase.
     var cleanWords []string
     for _, word := range rawWords {
         cleanWord := trim.ReplaceAllString(word, "")
@@ -57,15 +57,15 @@ func getWordCountMap(words []string) map[string]int {
 /*
     Return mapping of frequencies to array of strings with the corresponding frequency.
 */
-func getFrequencyMap(wMap map[string]int) map[int][]string {
-    fMap := make(map[int][]string)
-    for word, frequency := range wMap {
-        if _, inMap := fMap[frequency]; !inMap {
-            fMap[frequency] = []string{}
+func getFrequencyMap(wordMap map[string]int) map[int][]string {
+    freqMap := make(map[int][]string)
+    for word, frequency := range wordMap {
+        if _, inMap := freqMap[frequency]; !inMap {
+            freqMap[frequency] = []string{}
         }
-        fMap[frequency] = append(fMap[frequency], word)
+        freqMap[frequency] = append(freqMap[frequency], word)
     }
-    return fMap
+    return freqMap
 }
 
 /*
@@ -76,14 +76,15 @@ func printWordStats(words []string) {
     freqMap := getFrequencyMap(wordMap)
     fmt.Printf("File contains %d words.\n", len(words))
     fmt.Printf("File contains %d unique words.\n", len(wordMap))
-    // Print words from most to least frequently used.      
     var rankSlice []int
     for frequency := range freqMap {
         rankSlice = append(rankSlice, frequency)
     }
+    // Sort in descending order of frequency.
     sort.Slice(rankSlice, func(i, j int) bool {
         return rankSlice[i] > rankSlice[j]
     })
+    // Print words from most to least frequently used.      
     size := len(rankSlice)
     rankSlice = rankSlice[:size-1]
     for rank, frequency := range rankSlice {
@@ -92,6 +93,9 @@ func printWordStats(words []string) {
     }
 }
 
+/*
+    Print word info for each file in the working directory.
+*/
 func printDirectory() {
     files, err := ioutil.ReadDir(".")
     check(err)
@@ -105,6 +109,10 @@ func printDirectory() {
     }
 }
 
+/*
+    Print word info for each file specified in the working directory.
+    'args' is the array of desired file.
+*/
 func printFiles(args []string) {
     dir, err := os.Getwd()
     check(err)
