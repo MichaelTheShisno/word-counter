@@ -92,28 +92,40 @@ func printWordStats(words []string) {
     }
 }
 
+func printDirectory() {
+    files, err := ioutil.ReadDir(".")
+    check(err)
+    dir, err := os.Getwd()
+    check(err)
+    for _, file := range files {
+        mode := file.Mode()
+        if mode.IsRegular() {
+            printWordStats(getWords(fmt.Sprintf("%s\\%s", dir, file.Name())))
+        }
+    }
+}
+
+func printFiles(args []string) {
+    dir, err := os.Getwd()
+    check(err)
+    for _, arg := range args {
+        fileInfo, _ := os.Stat(arg)
+        if fileInfo.Mode().IsRegular() {
+            printWordStats(getWords(fmt.Sprintf("%s\\%s", dir, arg)))
+        }
+    }
+}
+
 /*
     Main function. Read in command line arguements.
     For each file, print out info about that text file.
+    If no files specified, print info for files in working directory.
 */
 func main() {
-    // Read in args, check if there are no args
     args := os.Args[1:]
     if len(args) == 0 {
-        fmt.Println("No command line args...\nExiting program")
-        os.Exit(-1)
-    } 
-    // Get working directory
-    dir, err := os.Getwd()
-    check(err)
-    // Store full path of files in array
-    var files []string
-    for _, arg := range args {
-        fpath := dir + "\\" + arg
-        files = append(files, fpath)
-    }
-    // For every file, print its word information
-    for _, filePath := range files {
-        printWordStats(getWords(filePath))
+        printDirectory()
+    } else {
+        printFiles(args)
     }
 }
